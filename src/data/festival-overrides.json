@@ -1,0 +1,10 @@
+{
+  "$comment": "Official / administrator-configured dates per Gregorian year. A date here replaces the calculated date of that festival in that year (spec: yearly_data_model).",
+  "2026": {
+    "vishu": "2026-04-15",
+    "onam": "2026-08-26",
+    "thiruvonam": "2026-08-26",
+    "kerala_piravi": "2026-11-01",
+    "christmas": "2026-12-25"
+  }
+}

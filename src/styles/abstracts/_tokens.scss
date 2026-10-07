@@ -1,0 +1,97 @@
+@use 'sass:map';
+@use 'sass:color';
+
+// Kerala-inspired palette: banana-leaf green, kasavu gold, cream cotton.
+$palette-light: (
+  'bg': #f5efe0,
+  'surface': #fffdf7,
+  'surface-2': #f3ecdb,
+  'text': #1b2a22,
+  'muted': #6d7b72,
+  'border': rgba(27, 42, 34, 0.08),
+  'primary': #1f6f50,
+  'accent': #c9a227,
+  'danger': #c2412d,
+  'hero-start': #1f6f50,
+  'hero-end': #123f2e,
+  'shadow': (0 1px 2px rgba(27, 42, 34, 0.04), 0 12px 32px -12px rgba(27, 42, 34, 0.18)),
+);
+
+$palette-dark: (
+  'bg': #0d1612,
+  'surface': #14211b,
+  'surface-2': #1a2b23,
+  'text': #ecf2ee,
+  'muted': #8fa198,
+  'border': rgba(236, 242, 238, 0.08),
+  'primary': #3fae82,
+  'accent': #e2bd45,
+  'danger': #f0705c,
+  'hero-start': #1d5e45,
+  'hero-end': #0e2f23,
+  'shadow': (0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 40px -16px rgba(0, 0, 0, 0.6)),
+);
+
+// Festival category colours (ids match src/data/festivals.json)
+$category-colors: (
+  'malayali': #c08a12,
+  'hindu': #d4621c,
+  'muslim': #0f8a6a,
+  'christian': #2f63b5,
+  'cultural': #8a4cc2,
+  'temple': #b3392a,
+  'boat_race': #1688a8,
+  'national': #e07b00,
+);
+
+$radii: (
+  'sm': 0.5rem,
+  'md': 0.875rem,
+  'lg': 1.375rem,
+  'pill': 999px,
+);
+
+$breakpoints: (
+  'sm': 576px,
+  'md': 768px,
+  'lg': 992px,
+  'xl': 1200px,
+);
+
+$font-sans: 'Outfit', 'Noto Sans Malayalam', system-ui, -apple-system, 'Segoe UI', sans-serif;
+$ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+// --mc-cat-<id>; dark mode gets lighter versions for contrast on dark surfaces
+@mixin category-vars($dark: false) {
+  @each $id, $color in $category-colors {
+    @if $dark {
+      $color: color.adjust($color, $lightness: 18%);
+    }
+    --mc-cat-#{$id}: #{$color};
+  }
+}
+
+@function token($name) {
+  @return var(--mc-#{$name});
+}
+
+@function radius($key) {
+  @return map.get($radii, $key);
+}
+
+// Emits the palette as CSS custom properties, plus a few colors derived at build time.
+@mixin theme-vars($p) {
+  @each $key, $value in $p {
+    --mc-#{$key}: #{$value};
+  }
+
+  $primary: map.get($p, 'primary');
+  $accent: map.get($p, 'accent');
+
+  --mc-primary-soft: #{color.mix($primary, map.get($p, 'surface-2'), 16%)};
+  --mc-primary-strong: #{color.adjust($primary, $lightness: -10%)};
+  --mc-accent-strong: #{color.adjust($accent, $lightness: -12%)};
+  --mc-accent-glow: #{color.change($accent, $alpha: 0.45)};
+  --mc-glow-1: #{color.change($primary, $alpha: 0.14)};
+  --mc-glow-2: #{color.change($accent, $alpha: 0.16)};
+}

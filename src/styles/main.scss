@@ -1,0 +1,38 @@
+// Global theme. Abstracts (tokens/mixins) are injected via vite.config.js.
+
+:root {
+  @include theme-vars($palette-light);
+  @include category-vars;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    @include theme-vars($palette-dark);
+    @include category-vars($dark: true);
+    color-scheme: dark;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: $font-sans;
+  color: token(text);
+  background:
+    radial-gradient(60rem 40rem at -10% -10%, token(glow-1), transparent 60%),
+    radial-gradient(50rem 40rem at 110% 110%, token(glow-2), transparent 60%),
+    token(bg);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: token(accent-glow);
+}

@@ -1,0 +1,794 @@
+{
+  "$comment": "Festival definitions (from the project spec). date_rule fields beyond the spec: 'observe' (sunrise|noon|sunset|midnight — when the tithi must prevail; first_sunrise_in_sign — Vishu), 'relative_to'/'direction' (nakshatra searched before/after another festival), 'range_from' (range starting at another festival), 'range_days', 'same_as' (same date as another festival), 'offset_days', 'nakshatra_preference'. Yearly official dates live in festival-overrides.json.",
+  "categories": [
+    {
+      "id": "malayali",
+      "name_ml": "മലയാളി ആഘോഷങ്ങൾ",
+      "name_en": "Malayali Festivals",
+      "icon": "flower1"
+    },
+    {
+      "id": "hindu",
+      "name_ml": "ഹിന്ദു ആഘോഷങ്ങൾ",
+      "name_en": "Hindu Festivals",
+      "icon": "brightness-high"
+    },
+    {
+      "id": "muslim",
+      "name_ml": "ഇസ്ലാമിക ആഘോഷങ്ങൾ",
+      "name_en": "Islamic Festivals",
+      "icon": "moon-stars"
+    },
+    {
+      "id": "christian",
+      "name_ml": "ക്രൈസ്തവ ആഘോഷങ്ങൾ",
+      "name_en": "Christian Festivals",
+      "icon": "star"
+    },
+    {
+      "id": "cultural",
+      "name_ml": "സാംസ്കാരിക പരിപാടികൾ",
+      "name_en": "Cultural Events",
+      "icon": "mask"
+    },
+    {
+      "id": "temple",
+      "name_ml": "ക്ഷേത്ര ഉത്സവങ്ങൾ",
+      "name_en": "Temple Festivals",
+      "icon": "bank"
+    },
+    {
+      "id": "boat_race",
+      "name_ml": "വള്ളംകളി",
+      "name_en": "Boat Races",
+      "icon": "water"
+    },
+    {
+      "id": "national",
+      "name_ml": "ദേശീയ ദിനങ്ങൾ",
+      "name_en": "National Days",
+      "icon": "flag"
+    }
+  ],
+  "festivals": [
+    {
+      "id": "vishu",
+      "name_ml": "വിഷു",
+      "name_en": "Vishu",
+      "category": "malayali",
+      "type": "festival",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "malayalam_calendar",
+        "month": "Medam",
+        "day": 1,
+        "observe": "first_sunrise_in_sign"
+      },
+      "tags": [
+        "vishu",
+        "vishukkani",
+        "vishukkaineettam"
+      ]
+    },
+    {
+      "id": "chingam_1",
+      "name_ml": "ചിങ്ങം 1",
+      "name_en": "Chingam 1",
+      "category": "malayali",
+      "type": "calendar_event",
+      "importance": "high",
+      "date_rule": {
+        "type": "malayalam_calendar",
+        "month": "Chingam",
+        "day": 1
+      }
+    },
+    {
+      "id": "onam",
+      "name_ml": "ഓണം",
+      "name_en": "Onam",
+      "category": "malayali",
+      "type": "festival",
+      "importance": "very_high",
+      "duration": 10,
+      "date_rule": {
+        "type": "nakshatra",
+        "nakshatra": "Thiruvonam",
+        "month": "Chingam",
+        "range_from": "atham"
+      },
+      "related_events": [
+        "atham",
+        "chithira",
+        "chothi",
+        "vishakam",
+        "anizham",
+        "thrikketta",
+        "moolam",
+        "pooradam",
+        "uthradam",
+        "thiruvonam"
+      ],
+      "tags": [
+        "onam",
+        "mahabali",
+        "pookalam",
+        "onasadya",
+        "vallamkali",
+        "pulikali"
+      ]
+    },
+    {
+      "id": "atham",
+      "name_ml": "അത്തം",
+      "name_en": "Atham",
+      "category": "malayali",
+      "type": "onam_event",
+      "importance": "high",
+      "date_rule": {
+        "type": "nakshatra",
+        "nakshatra": "Atham",
+        "month": "Chingam",
+        "relative_to": "thiruvonam",
+        "direction": "before"
+      }
+    },
+    {
+      "id": "thiruvonam",
+      "name_ml": "തിരുവോണം",
+      "name_en": "Thiruvonam",
+      "category": "malayali",
+      "type": "festival",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "nakshatra",
+        "nakshatra": "Thiruvonam",
+        "month": "Chingam"
+      }
+    },
+    {
+      "id": "thiruvathira",
+      "name_ml": "തിരുവാതിര",
+      "name_en": "Thiruvathira",
+      "category": "malayali",
+      "type": "traditional_festival",
+      "importance": "high",
+      "date_rule": {
+        "type": "nakshatra",
+        "nakshatra": "Thiruvathira",
+        "month": "Dhanu"
+      }
+    },
+    {
+      "id": "karkidaka_vavu",
+      "name_ml": "കർക്കിടക വാവുബലി",
+      "name_en": "Karkidaka Vavu Bali",
+      "category": "malayali",
+      "type": "ritual",
+      "importance": "high",
+      "date_rule": {
+        "type": "lunar",
+        "month": "Karkidakam",
+        "tithi": "Amavasya"
+      }
+    },
+    {
+      "id": "thrissur_pooram",
+      "name_ml": "തൃശ്ശൂർ പൂരം",
+      "name_en": "Thrissur Pooram",
+      "category": "temple",
+      "type": "temple_festival",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "lunar_nakshatra",
+        "month": "Medam",
+        "nakshatra": "Pooram"
+      },
+      "location": {
+        "district": "Thrissur",
+        "state": "Kerala",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "attukal_pongala",
+      "name_ml": "ആറ്റുകാൽ പൊങ്കാല",
+      "name_en": "Attukal Pongala",
+      "category": "temple",
+      "type": "temple_festival",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "temple_calendar",
+        "temple": "Attukal Bhagavathy Temple"
+      },
+      "location": {
+        "city": "Thiruvananthapuram",
+        "state": "Kerala",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "makaravilakku",
+      "name_ml": "മകരവിളക്ക്",
+      "name_en": "Makaravilakku",
+      "category": "malayali",
+      "type": "sabarimala_festival",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "malayalam_calendar",
+        "month": "Makaram",
+        "day": 1
+      },
+      "location": {
+        "name": "Sabarimala",
+        "district": "Pathanamthitta",
+        "state": "Kerala",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "mandala_kalam",
+      "name_ml": "മണ്ഡലകാലം",
+      "name_en": "Mandala Kalam",
+      "category": "malayali",
+      "type": "pilgrimage_season",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "range",
+        "duration_days": 41,
+        "start": "Vrischikam 1"
+      },
+      "location": {
+        "name": "Sabarimala",
+        "state": "Kerala",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "guruvayur_ekadasi",
+      "name_ml": "ഗുരുവായൂർ ഏകാദശി",
+      "name_en": "Guruvayur Ekadasi",
+      "category": "temple",
+      "type": "temple_festival",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "ekadashi",
+        "month": "Vrischikam",
+        "paksha": "Shukla"
+      },
+      "location": {
+        "name": "Guruvayur Temple",
+        "district": "Thrissur",
+        "state": "Kerala",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "vaikathashtami",
+      "name_ml": "വൈക്കത്തഷ്ടമി",
+      "name_en": "Vaikathashtami",
+      "category": "temple",
+      "type": "temple_festival",
+      "importance": "high",
+      "date_rule": {
+        "type": "lunar",
+        "month": "Vrischikam",
+        "tithi": "Krishna Ashtami"
+      },
+      "location": {
+        "name": "Vaikom Mahadeva Temple",
+        "district": "Kottayam",
+        "state": "Kerala",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "kalpathi_ratholsavam",
+      "name_ml": "കൽപ്പാത്തി രഥോത്സവം",
+      "name_en": "Kalpathi Ratholsavam",
+      "category": "temple",
+      "type": "temple_festival",
+      "importance": "high",
+      "date_rule": {
+        "type": "temple_calendar",
+        "month": "Thulam"
+      },
+      "location": {
+        "district": "Palakkad",
+        "state": "Kerala",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "kottiyoor_vaishakha",
+      "name_ml": "കൊട്ടിയൂർ വൈശാഖ മഹോത്സവം",
+      "name_en": "Kottiyoor Vaishakha Mahotsavam",
+      "category": "temple",
+      "type": "temple_festival",
+      "importance": "high",
+      "date_rule": {
+        "type": "temple_calendar"
+      },
+      "location": {
+        "district": "Kannur",
+        "state": "Kerala",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "nenmara_vallangi_vela",
+      "name_ml": "നെന്മാറ വല്ലങ്ങി വേല",
+      "name_en": "Nenmara Vallangi Vela",
+      "category": "cultural",
+      "type": "temple_festival",
+      "importance": "high",
+      "date_rule": {
+        "type": "malayalam_calendar",
+        "month": "Meenam"
+      },
+      "location": {
+        "district": "Palakkad",
+        "state": "Kerala",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "theyyam",
+      "name_ml": "തെയ്യം",
+      "name_en": "Theyyam Season",
+      "category": "cultural",
+      "type": "traditional_art",
+      "importance": "high",
+      "date_rule": {
+        "type": "season",
+        "start_month": "Vrischikam",
+        "end_month": "Medam"
+      },
+      "location": {
+        "districts": [
+          "Kannur",
+          "Kasaragod"
+        ],
+        "state": "Kerala",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "pulikali",
+      "name_ml": "പുലിക്കളി",
+      "name_en": "Pulikali",
+      "category": "cultural",
+      "type": "onam_event",
+      "importance": "high",
+      "date_rule": {
+        "type": "onam_related",
+        "description": "Usually fourth Onam day",
+        "relative_to": "thiruvonam",
+        "offset_days": 3
+      },
+      "date_note": "Usually the fourth Onam day; confirm the year's date with the organisers.",
+      "location": {
+        "district": "Thrissur",
+        "state": "Kerala",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "aranmula_vallamkali",
+      "name_ml": "ആറന്മുള വള്ളംകളി",
+      "name_en": "Aranmula Vallamkali",
+      "category": "boat_race",
+      "type": "cultural_event",
+      "importance": "high",
+      "date_rule": {
+        "type": "nakshatra",
+        "nakshatra": "Uthrattathi",
+        "month": "Chingam",
+        "relative_to": "thiruvonam",
+        "direction": "after"
+      },
+      "location": {
+        "district": "Pathanamthitta",
+        "state": "Kerala",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "nehru_trophy",
+      "name_ml": "നെഹ്റു ട്രോഫി വള്ളംകളി",
+      "name_en": "Nehru Trophy Vallamkali",
+      "category": "boat_race",
+      "type": "cultural_event",
+      "importance": "high",
+      "date_rule": {
+        "type": "annual_event",
+        "date_announced": true
+      },
+      "location": {
+        "district": "Alappuzha",
+        "state": "Kerala",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "maha_shivaratri",
+      "name_ml": "മഹാശിവരാത്രി",
+      "name_en": "Maha Shivaratri",
+      "category": "hindu",
+      "type": "religious_festival",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "lunar",
+        "tithi": "Krishna Chaturdashi",
+        "month": "Magha",
+        "observe": "midnight"
+      }
+    },
+    {
+      "id": "ram_navami",
+      "name_ml": "രാമനവമി",
+      "name_en": "Rama Navami",
+      "category": "hindu",
+      "type": "religious_festival",
+      "importance": "high",
+      "date_rule": {
+        "type": "lunar",
+        "tithi": "Shukla Navami",
+        "month": "Chaitra",
+        "observe": "noon"
+      }
+    },
+    {
+      "id": "janmashtami",
+      "name_ml": "ശ്രീകൃഷ്ണ ജയന്തി",
+      "name_en": "Krishna Janmashtami",
+      "category": "hindu",
+      "type": "religious_festival",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "lunar",
+        "tithi": "Krishna Ashtami",
+        "month": "Chingam",
+        "nakshatra_preference": "Rohini"
+      },
+      "date_note": "Kerala observes Sree Krishna Jayanthi (Ashtami Rohini) in Chingam; North Indian calendars may differ."
+    },
+    {
+      "id": "ganesh_chaturthi",
+      "name_ml": "വിനായക ചതുർത്ഥി",
+      "name_en": "Ganesh Chaturthi",
+      "category": "hindu",
+      "type": "religious_festival",
+      "importance": "high",
+      "date_rule": {
+        "type": "lunar",
+        "tithi": "Shukla Chaturthi",
+        "month": "Bhadrapada",
+        "observe": "noon"
+      }
+    },
+    {
+      "id": "navaratri",
+      "name_ml": "നവരാത്രി",
+      "name_en": "Navaratri",
+      "category": "hindu",
+      "type": "religious_festival",
+      "importance": "very_high",
+      "duration_days": 9,
+      "date_rule": {
+        "type": "lunar",
+        "month": "Ashwina",
+        "paksha": "Shukla",
+        "tithi": "Shukla Prathama",
+        "range_days": 9
+      },
+      "related_events": [
+        "durga_ashtami",
+        "mahanavami",
+        "ayudha_puja",
+        "saraswati_puja",
+        "vijayadashami",
+        "vidyarambham"
+      ]
+    },
+    {
+      "id": "durga_ashtami",
+      "name_ml": "ദുർഗാഷ്ടമി",
+      "name_en": "Durga Ashtami",
+      "category": "hindu",
+      "type": "religious_festival",
+      "importance": "high",
+      "date_rule": {
+        "type": "lunar",
+        "tithi": "Shukla Ashtami",
+        "month": "Ashwina",
+        "festival": "Navaratri"
+      }
+    },
+    {
+      "id": "mahanavami",
+      "name_ml": "മഹാനവമി",
+      "name_en": "Mahanavami",
+      "category": "hindu",
+      "type": "religious_festival",
+      "importance": "high",
+      "date_rule": {
+        "type": "lunar",
+        "tithi": "Shukla Navami",
+        "month": "Ashwina",
+        "festival": "Navaratri"
+      }
+    },
+    {
+      "id": "ayudha_puja",
+      "name_ml": "ആയുധ പൂജ",
+      "name_en": "Ayudha Puja",
+      "category": "hindu",
+      "type": "religious_festival",
+      "importance": "high",
+      "date_rule": {
+        "type": "navaratri",
+        "event": "Ayudha Puja",
+        "same_as": "mahanavami"
+      }
+    },
+    {
+      "id": "vijayadashami",
+      "name_ml": "വിജയദശമി",
+      "name_en": "Vijayadashami",
+      "category": "hindu",
+      "type": "religious_festival",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "lunar",
+        "tithi": "Shukla Dashami",
+        "month": "Ashwina"
+      }
+    },
+    {
+      "id": "vidyarambham",
+      "name_ml": "വിദ്യാരംഭം",
+      "name_en": "Vidyarambham",
+      "category": "malayali",
+      "type": "traditional_event",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "vijayadashami",
+        "region": "Kerala",
+        "same_as": "vijayadashami"
+      }
+    },
+    {
+      "id": "deepavali",
+      "name_ml": "ദീപാവലി",
+      "name_en": "Deepavali",
+      "category": "hindu",
+      "type": "religious_festival",
+      "importance": "high",
+      "date_rule": {
+        "type": "lunar",
+        "tithi": "Amavasya",
+        "month": "Ashwina",
+        "observe": "sunset"
+      }
+    },
+    {
+      "id": "eid_al_fitr",
+      "name_ml": "ഈദുൽ ഫിത്വർ",
+      "name_en": "Eid al-Fitr",
+      "category": "muslim",
+      "type": "religious_festival",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "islamic",
+        "month": "Shawwal",
+        "day": 1
+      },
+      "date_note": "May vary by moon sighting and local authority."
+    },
+    {
+      "id": "eid_al_adha",
+      "name_ml": "ബലിപെരുന്നാൾ",
+      "name_en": "Eid al-Adha",
+      "category": "muslim",
+      "type": "religious_festival",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "islamic",
+        "month": "Dhul Hijjah",
+        "day": 10
+      },
+      "date_note": "May vary by moon sighting and local authority."
+    },
+    {
+      "id": "ramadan",
+      "name_ml": "റമദാൻ",
+      "name_en": "Ramadan",
+      "category": "muslim",
+      "type": "religious_observance",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "islamic",
+        "month": "Ramadan",
+        "day": 1
+      },
+      "date_note": "Start date may vary by moon sighting."
+    },
+    {
+      "id": "laylat_al_qadr",
+      "name_ml": "ലൈലത്തുൽ ഖദർ",
+      "name_en": "Laylat al-Qadr",
+      "category": "muslim",
+      "type": "religious_observance",
+      "importance": "high",
+      "date_rule": {
+        "type": "islamic",
+        "month": "Ramadan",
+        "day": 27,
+        "description": "Usually observed during the last ten nights."
+      },
+      "date_note": "Commonly marked on the 27th night of Ramadan; observed during the last ten nights."
+    },
+    {
+      "id": "muharram",
+      "name_ml": "മുഹറം",
+      "name_en": "Muharram",
+      "category": "muslim",
+      "type": "religious_observance",
+      "importance": "high",
+      "date_rule": {
+        "type": "islamic",
+        "month": "Muharram",
+        "day": 1
+      },
+      "date_note": "May vary by moon sighting."
+    },
+    {
+      "id": "ashura",
+      "name_ml": "ആശൂറാ",
+      "name_en": "Ashura",
+      "category": "muslim",
+      "type": "religious_observance",
+      "importance": "high",
+      "date_rule": {
+        "type": "islamic",
+        "month": "Muharram",
+        "day": 10
+      },
+      "date_note": "May vary by moon sighting."
+    },
+    {
+      "id": "milad_un_nabi",
+      "name_ml": "നബിദിനം",
+      "name_en": "Milad-un-Nabi",
+      "category": "muslim",
+      "type": "religious_festival",
+      "importance": "high",
+      "date_rule": {
+        "type": "islamic",
+        "month": "Rabi al-Awwal",
+        "day": 12
+      },
+      "date_note": "May vary by moon sighting."
+    },
+    {
+      "id": "christmas",
+      "name_ml": "ക്രിസ്മസ്",
+      "name_en": "Christmas",
+      "category": "christian",
+      "type": "religious_festival",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "gregorian_fixed",
+        "month": 12,
+        "day": 25
+      }
+    },
+    {
+      "id": "good_friday",
+      "name_ml": "ദുഃഖവെള്ളി",
+      "name_en": "Good Friday",
+      "category": "christian",
+      "type": "religious_festival",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "easter_relative",
+        "days_before_easter": 2
+      }
+    },
+    {
+      "id": "easter",
+      "name_ml": "ഈസ്റ്റർ",
+      "name_en": "Easter",
+      "category": "christian",
+      "type": "religious_festival",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "gregorian_calculation",
+        "algorithm": "western_easter"
+      }
+    },
+    {
+      "id": "maundy_thursday",
+      "name_ml": "പെസഹാ വ്യാഴം",
+      "name_en": "Maundy Thursday",
+      "category": "christian",
+      "type": "holy_week",
+      "importance": "high",
+      "date_rule": {
+        "type": "easter_relative",
+        "days_before_easter": 3
+      }
+    },
+    {
+      "id": "parumala_perunnal",
+      "name_ml": "പരുമല പെരുന്നാൾ",
+      "name_en": "Parumala Perunnal",
+      "category": "christian",
+      "type": "perunnal",
+      "importance": "high",
+      "date_rule": {
+        "type": "gregorian_fixed",
+        "month": 11,
+        "day": 2
+      },
+      "location": {
+        "district": "Pathanamthitta",
+        "state": "Kerala",
+        "country": "IN"
+      }
+    },
+    {
+      "id": "kerala_piravi",
+      "name_ml": "കേരളപ്പിറവി",
+      "name_en": "Kerala Piravi",
+      "category": "malayali",
+      "type": "cultural_event",
+      "importance": "very_high",
+      "date_rule": {
+        "type": "gregorian_fixed",
+        "month": 11,
+        "day": 1
+      }
+    },
+    {
+      "id": "republic_day",
+      "name_ml": "റിപ്പബ്ലിക് ഡേ",
+      "name_en": "Republic Day",
+      "category": "national",
+      "type": "national_day",
+      "importance": "high",
+      "date_rule": {
+        "type": "gregorian_fixed",
+        "month": 1,
+        "day": 26
+      }
+    },
+    {
+      "id": "independence_day",
+      "name_ml": "സ്വാതന്ത്ര്യദിനം",
+      "name_en": "Independence Day",
+      "category": "national",
+      "type": "national_day",
+      "importance": "high",
+      "date_rule": {
+        "type": "gregorian_fixed",
+        "month": 8,
+        "day": 15
+      }
+    },
+    {
+      "id": "gandhi_jayanti",
+      "name_ml": "ഗാന്ധിജയന്തി",
+      "name_en": "Gandhi Jayanti",
+      "category": "national",
+      "type": "national_day",
+      "importance": "high",
+      "date_rule": {
+        "type": "gregorian_fixed",
+        "month": 10,
+        "day": 2
+      }
+    }
+  ]
+}
