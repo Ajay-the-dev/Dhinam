@@ -103,14 +103,17 @@ const locationText = computed(() => {
   return [l.name, l.city, l.district, l.districts?.join(', '), l.state, country].filter(Boolean).join(', ');
 });
 
+// Invite friends to the app, linking to the page as it is now
 const share = async () => {
-  const o = current.value;
-  const text = [festivalName(o.def, store.lang), dateText.value, malText.value].filter(Boolean).join('\n');
+  const text = isMal.value
+    ? 'ഹായ്, വളരെ രസകരമായ ഒരു മലയാളം കലണ്ടർ കണ്ടെത്തി @'
+    : 'Hey, I found this really cool Malayalam calendar @';
+  const url = location.href;
   try {
     if (navigator.share) {
-      await navigator.share({ title: festivalName(o.def, store.lang), text, url: location.href });
+      await navigator.share({ title: 'MalCal', text, url });
     } else {
-      await navigator.clipboard.writeText(`${text}\n${location.href}`);
+      await navigator.clipboard.writeText(`${text}\n${url}`);
       copied.value = true;
     }
   } catch {
