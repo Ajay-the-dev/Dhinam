@@ -3,6 +3,7 @@
         <template #primary>
             <div class="primary-content">
                 <Cal />
+                <HolidaysCard />
             </div>
         </template>
         <template #secondary>
@@ -21,6 +22,7 @@ import MainView from '../views/main.vue'
 import Cal from "@/components/calender.vue";
 import DayDetails from "@/components/DayDetails.vue";
 import FestivalDialog from "@/components/FestivalDialog.vue";
+import HolidaysCard from "@/components/HolidaysCard.vue";
 import { useCalendarStore } from '@/stores/calenderStore.js';
 
 const props = defineProps({
@@ -55,6 +57,10 @@ watch(
 
 <style lang="scss" scoped>
 .primary-content {
+    display: grid;
+    // minmax(0, …) so long unwrapped text can't stretch the column past the screen
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
     min-width: 0;
 }
 

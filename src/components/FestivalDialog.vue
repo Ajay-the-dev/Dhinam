@@ -4,7 +4,7 @@ import { useCalendarStore } from '@/stores/calenderStore.js';
 import {
   festivalName, categoryName, describeRule, dateNote, festivalsForYear, occurrenceDate,
 } from '@/lib/festivals.js';
-import { toMalayalamDate, monthName, nakshatraOn, nakshatraName } from '@/lib/malayalam.js';
+import { toMalayalamDate, monthName, nakshatraOn, nakshatraNames } from '@/lib/malayalam.js';
 
 const store = useCalendarStore();
 const dialog = ref(null);
@@ -66,7 +66,7 @@ const malText = computed(() => {
   if (!o || o.kind !== 'day') return '';
   const d = occurrenceDate(o);
   const m = toMalayalamDate(d);
-  const nak = nakshatraName(nakshatraOn(d).index, store.lang);
+  const nak = nakshatraNames(nakshatraOn(d), store.lang);
   return `${monthName(m.month, store.lang)} ${m.day}, ${t.value.era} ${m.year} · ★ ${nak}`;
 });
 
@@ -80,7 +80,7 @@ const spanDays = computed(() => {
       key: i,
       date: fmtDate(d, { day: 'numeric', month: 'short' }),
       weekday: fmtDate(d, { weekday: 'short' }),
-      nak: nakshatraName(nakshatraOn(d).index, store.lang),
+      nak: nakshatraNames(nakshatraOn(d), store.lang),
     };
   });
 });
@@ -133,14 +133,28 @@ const openRelated = (o) => store.openFestival([o]);
     @click="onBackdrop"
   >
     <article v-if="current" class="panel" :style="{ '--cat': `var(--mc-cat-${current.def.category})` }">
-      <header class="head">
-        <span class="category">
-          <i :class="`bi bi-${current.category.icon}`" aria-hidden="true"></i>
-          {{ categoryName(current.category, store.lang) }}
-        </span>
-        <button class="icon-btn" :aria-label="t.close" @click="dialog.close()">
-          <i class="bi bi-x-lg" aria-hidden="true"></i>
-        </button>
+      <!-- Hero header: same green + kasavu-gold treatment as the Today card -->
+      <header class="hero">
+        <div class="hero-top">
+          <span class="category">
+            <i :class="`bi bi-${current.category.icon}`" aria-hidden="true"></i>
+            {{ categoryName(current.category, store.lang) }}
+          </span>
+          <button class="icon-btn" :aria-label="t.close" @click="dialog.close()">
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <h2 class="title">{{ festivalName(current.def, store.lang) }}</h2>
+        <p class="alt-name" :lang="isMal ? 'en' : 'ml'">{{ isMal ? current.def.name_en : current.def.name_ml }}</p>
+
+        <div class="when">
+          <div class="when-main">
+            <i class="bi bi-calendar-event" aria-hidden="true"></i>
+            {{ dateText }}
+          </div>
+          <div v-if="malText" class="when-sub">{{ malText }}</div>
+        </div>
       </header>
 
       <!-- Several festivals on one day: switch between them -->
@@ -154,22 +168,12 @@ const openRelated = (o) => store.openFestival([o]);
           :style="{ '--cat': `var(--mc-cat-${o.def.category})` }"
           @click="show(o.key)"
         >
+          <span class="tab-dot" aria-hidden="true"></span>
           {{ festivalName(o.def, store.lang) }}
         </button>
       </div>
 
       <div class="body">
-        <h2 class="title">{{ festivalName(current.def, store.lang) }}</h2>
-        <p class="alt-name" :lang="isMal ? 'en' : 'ml'">{{ isMal ? current.def.name_en : current.def.name_ml }}</p>
-
-        <div class="when">
-          <i class="bi bi-calendar-event" aria-hidden="true"></i>
-          <div>
-            <div class="when-main">{{ dateText }}</div>
-            <div v-if="malText" class="when-sub">{{ malText }}</div>
-          </div>
-        </div>
-
         <ul v-if="spanDays.length" class="span-days">
           <li v-for="d in spanDays" :key="d.key">
             <span class="sd-date">{{ d.date }}</span>
@@ -179,7 +183,7 @@ const openRelated = (o) => store.openFestival([o]);
         </ul>
 
         <section class="fact">
-          <h3>{{ t.rule }}</h3>
+          <h3><i class="bi bi-compass" aria-hidden="true"></i>{{ t.rule }}</h3>
           <p>
             {{ describeRule(current.def, store.lang) }}
             <span class="source" :class="current.source">
@@ -193,12 +197,12 @@ const openRelated = (o) => store.openFestival([o]);
         </section>
 
         <section v-if="locationText" class="fact">
-          <h3>{{ t.location }}</h3>
-          <p><i class="bi bi-geo-alt" aria-hidden="true"></i> {{ locationText }}</p>
+          <h3><i class="bi bi-geo-alt" aria-hidden="true"></i>{{ t.location }}</h3>
+          <p>{{ locationText }}</p>
         </section>
 
         <section v-if="related.length" class="fact">
-          <h3>{{ t.related }}</h3>
+          <h3><i class="bi bi-link-45deg" aria-hidden="true"></i>{{ t.related }}</h3>
           <div class="chips">
             <button
               v-for="o in related"
@@ -238,41 +242,76 @@ const openRelated = (o) => store.openFestival([o]);
   border-radius: radius('lg');
   background: transparent;
   color: token(text);
+  overflow: visible;
 
   &::backdrop {
-    background: rgba(10, 20, 15, 0.5);
-    backdrop-filter: blur(3px);
+    background: rgba(10, 20, 15, 0.55);
+    backdrop-filter: blur(4px);
   }
 
   &[open] {
-    animation: pop-in 0.2s $ease-out;
+    animation: pop-in 0.25s $ease-out;
   }
 }
 
 .panel {
   @include card;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 2rem);
   overflow: hidden;
-  // category colour band across the top
-  border-top: 6px solid var(--cat);
 }
 
-.head {
+// ── Hero header (mirrors the Today card in DayDetails) ──
+.hero {
+  position: relative;
+  flex-shrink: 0;
+  padding: 1rem 1.25rem 1.75rem;
+  color: #fff;
+  background:
+    radial-gradient(circle at 100% 0%, token(accent-glow), transparent 55%),
+    radial-gradient(circle at 0% 100%, color-mix(in srgb, var(--cat) 35%, transparent), transparent 60%),
+    linear-gradient(160deg, token(hero-start), token(hero-end));
+
+  // kasavu hem: double gold stripe
+  &::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 0.9rem;
+    background: linear-gradient(
+      to bottom,
+      transparent 0 20%,
+      token(accent) 20% 45%,
+      transparent 45% 60%,
+      token(accent) 60% 72%,
+      transparent 72%
+    );
+  }
+}
+
+.hero-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem 0;
+  margin-bottom: 0.9rem;
 }
 
 .category {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.25rem 0.7rem;
+  padding: 0.3rem 0.8rem;
   border-radius: radius('pill');
-  background: color-mix(in srgb, var(--cat) 14%, transparent);
-  color: var(--cat);
-  font-size: 0.78rem;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 0.75rem;
   font-weight: 700;
+  letter-spacing: 0.04em;
+
+  .bi {
+    color: token(accent);
+  }
 }
 
 .icon-btn {
@@ -283,93 +322,120 @@ const openRelated = (o) => store.openFestival([o]);
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 50%;
-  color: token(muted);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  transition: background 0.15s, transform 0.15s $ease-out;
 
   &:hover {
-    background: token(surface-2);
-    color: token(text);
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff;
+    transform: rotate(90deg);
   }
 }
 
+.title {
+  margin: 0;
+  font-size: clamp(1.6rem, 6vw, 2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.alt-name {
+  margin: 0.2rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: token(accent);
+}
+
+.when {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.when-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+
+  .bi {
+    color: token(accent);
+  }
+}
+
+.when-sub {
+  margin-top: 0.2rem;
+  padding-left: 1.5rem;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+// ── Festival switcher ──
 .tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
-  padding: 0.75rem 1.25rem 0;
+  gap: 0.4rem;
+  padding: 1rem 1.25rem 0;
 }
 
 .tab {
   @include reset-button;
   @include focus-ring;
-  padding: 0.3rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.8rem;
   border-radius: radius('pill');
   border: 1px solid token(border);
+  background: token(surface-2);
   font-size: 0.8rem;
   font-weight: 600;
   color: token(muted);
+  transition: all 0.15s;
+
+  &:hover {
+    color: token(text);
+  }
 
   &[aria-selected='true'] {
     border-color: var(--cat);
-    background: color-mix(in srgb, var(--cat) 14%, transparent);
+    background: color-mix(in srgb, var(--cat) 14%, token(surface));
     color: var(--cat);
   }
 }
 
+.tab-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--cat);
+}
+
+// ── Body ──
 .body {
-  padding: 0.75rem 1.25rem 0.5rem;
-  max-height: calc(100dvh - 12rem);
+  flex: 1;
+  min-height: 0;
+  padding: 0.5rem 1.25rem 0.5rem;
   overflow-y: auto;
-}
-
-.title {
-  margin: 0;
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-.alt-name {
-  margin: 0.1rem 0 1rem;
-  color: token(muted);
-}
-
-.when {
-  display: flex;
-  gap: 0.75rem;
-  padding: 0.85rem 1rem;
-  border-radius: radius('md');
-  background: token(surface-2);
-
-  > .bi {
-    color: var(--cat);
-    font-size: 1.2rem;
-  }
-}
-
-.when-main {
-  font-weight: 700;
-}
-
-.when-sub {
-  margin-top: 0.15rem;
-  font-size: 0.85rem;
-  color: token(muted);
 }
 
 .span-days {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
-  gap: 0.35rem;
-  margin: 0.75rem 0 0;
+  gap: 0.4rem;
+  margin: 1rem 0 0;
   padding: 0;
   list-style: none;
 
   li {
     display: flex;
     flex-direction: column;
-    padding: 0.4rem 0.55rem;
+    padding: 0.5rem 0.6rem;
     border-radius: radius('sm');
-    border: 1px solid token(border);
+    background: token(surface-2);
+    border-left: 3px solid token(accent);
     font-size: 0.75rem;
   }
 }
@@ -378,42 +444,53 @@ const openRelated = (o) => store.openFestival([o]);
   font-weight: 700;
 }
 
-.sd-week,
-.sd-nak {
+.sd-week {
   color: token(muted);
 }
 
 .sd-nak {
-  color: var(--cat);
+  color: token(primary);
   font-weight: 600;
 }
 
 .fact {
-  margin-top: 1.1rem;
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: radius('md');
+  background: token(surface-2);
 
   h3 {
-    margin: 0 0 0.3rem;
-    font-size: 0.72rem;
-    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0 0 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: token(muted);
+    letter-spacing: 0.1em;
+    color: token(primary);
+
+    .bi {
+      font-size: 0.85rem;
+      color: token(accent-strong);
+    }
   }
 
   p {
     margin: 0;
+    line-height: 1.5;
   }
 }
 
 .source {
   display: inline-block;
   margin-left: 0.35rem;
-  padding: 0 0.45rem;
+  padding: 0.05rem 0.5rem;
   border-radius: radius('pill');
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
   vertical-align: middle;
-  background: token(surface-2);
+  background: token(surface);
   color: token(muted);
 
   &.override {
@@ -433,18 +510,20 @@ const openRelated = (o) => store.openFestival([o]);
 .chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .chip {
   @include reset-button;
   @include focus-ring;
-  padding: 0.3rem 0.7rem;
+  padding: 0.35rem 0.8rem;
   border-radius: radius('pill');
-  background: color-mix(in srgb, var(--cat) 12%, transparent);
+  background: token(surface);
+  border: 1px solid color-mix(in srgb, var(--cat) 35%, transparent);
   color: var(--cat);
   font-size: 0.8rem;
   font-weight: 600;
+  transition: background 0.15s, transform 0.15s $ease-out;
 
   small {
     margin-left: 0.25rem;
@@ -453,7 +532,8 @@ const openRelated = (o) => store.openFestival([o]);
   }
 
   &:hover {
-    background: color-mix(in srgb, var(--cat) 22%, transparent);
+    background: color-mix(in srgb, var(--cat) 12%, token(surface));
+    transform: translateY(-1px);
   }
 }
 
@@ -465,15 +545,22 @@ const openRelated = (o) => store.openFestival([o]);
 }
 
 .tag {
-  font-size: 0.75rem;
-  color: token(muted);
+  padding: 0.15rem 0.55rem;
+  border-radius: radius('pill');
+  background: color-mix(in srgb, token(accent) 14%, transparent);
+  color: token(accent-strong);
+  font-size: 0.72rem;
+  font-weight: 600;
 }
 
+// ── Footer ──
 .foot {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
-  padding: 0.75rem 1.25rem 1.1rem;
+  flex-shrink: 0;
+  padding: 0.85rem 1.25rem 1.1rem;
+  border-top: 1px solid token(border);
 }
 
 .btn-ghost,
@@ -483,14 +570,16 @@ const openRelated = (o) => store.openFestival([o]);
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.5rem 1rem;
+  padding: 0.55rem 1.1rem;
   border-radius: radius('pill');
   font-size: 0.875rem;
   font-weight: 600;
+  transition: background 0.15s, box-shadow 0.15s;
 }
 
 .btn-ghost {
   color: token(primary);
+  border: 1px solid token(primary-soft);
 
   &:hover {
     background: token(primary-soft);
@@ -498,18 +587,19 @@ const openRelated = (o) => store.openFestival([o]);
 }
 
 .btn-solid {
-  background: token(primary);
+  background: linear-gradient(160deg, token(hero-start), token(hero-end));
   color: #fff;
+  box-shadow: inset 0 -2px 0 token(accent);
 
   &:hover {
-    background: token(primary-strong);
+    box-shadow: inset 0 -2px 0 token(accent), 0 8px 20px -8px token(accent-glow);
   }
 }
 
 @keyframes pop-in {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.98);
+    transform: translateY(12px) scale(0.97);
   }
 }
 

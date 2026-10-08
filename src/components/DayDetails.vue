@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { festivalName, categoryName, occurrenceDate } from '@/lib/festivals.js';
 import { useCalendarStore } from '@/stores/calenderStore.js';
-import { monthName, MONTHS_EN, MONTHS_ML, nakshatraName, NAKSHATRAS_EN, NAKSHATRAS_ML, dayPeriods } from '@/lib/malayalam.js';
+import { monthName, MONTHS_EN, MONTHS_ML, nakshatraName, nakshatraNames, dayPeriods, toMalayalamDate } from '@/lib/malayalam.js';
 import { useIsDesktop } from '@/composables/useIsDesktop.js';
 
 const store = useCalendarStore();
@@ -75,16 +75,37 @@ const nextMonthStart = computed(() =>
 
 // Nakshatram at sunrise; its end time is shown in IST since it's computed for Kerala
 const nak = computed(() => store.selectedNak);
-const nakName = computed(() => nakshatraName(nak.value.index, store.lang));
-const nakNameAlt = computed(() => (isMal.value ? NAKSHATRAS_EN : NAKSHATRAS_ML)[nak.value.index]);
-const nakEnds = computed(() => {
-  const end = nak.value.endsAt;
+// Every star of the day, e.g. "Pooram – Uthram" when Uthram begins before midnight
+const nakName = computed(() => nakshatraNames(nak.value, store.lang));
+const nakNameAlt = computed(() => nakshatraNames(nak.value, isMal.value ? 'en' : 'mal'));
+const endInfo = (end) => {
   const time = end.toLocaleTimeString(locale.value, { hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' });
   const d = store.selectedDate;
   const selectedYmd = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const nextDay = end.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }) !== selectedYmd;
   return { time, nextDay };
-});
+};
+// "Pooram until 21:19 IST, then Uthram": each of the day's stars with its end time, then the last one.
+// A one-star day goes on to the star that follows it.
+const nakTimeline = (lang) => {
+  const stars = [{ index: nak.value.index, endsAt: nak.value.endsAt }, ...nak.value.later];
+  if (stars.length === 1) stars.push({ index: nak.value.next });
+  return stars
+    .map((s, i) => {
+      const name = nakshatraName(s.index, lang);
+      if (i === stars.length - 1) return name;
+      const { time, nextDay } = endInfo(s.endsAt);
+      return lang === 'mal'
+        ? `${name} ${nextDay ? 'നാളെ ' : ''}${time} IST വരെ`
+        : `${name} until ${time} IST${nextDay ? ' (next day)' : ''}`;
+    })
+    .join(lang === 'mal' ? ', തുടർന്ന് ' : ', then ');
+};
+
+const scrollToCalendar = () => {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.getElementById('calendar')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+};
 
 // Rahu Kalam, Gulika Kalam, Yamakandakam for the selected day (IST, Thiruvananthapuram)
 const now = ref(Date.now());
@@ -123,16 +144,27 @@ const ongoingText = (o) => {
 const toDayNumLocal = (d) => Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
 const upcomingDate = (o) => occurrenceDate(o).toLocaleDateString(locale.value, { day: 'numeric', month: isDesktop.value ? 'long' : 'short' });
 
-// Jump the calendar to an upcoming festival, select it and show its details
-const goToFestival = (o) => {
-  const date = occurrenceDate(o);
+// Select a date and bring the calendar to its month (in the active system)
+const showDate = (date) => {
   store.selectDate(date);
+  if (store.isInView(date)) return;
   if (store.system === 'mal') {
     const m = toMalayalamDate(date);
     router.push({ name: 'MalCalendar', params: { year: m.year, month: m.month + 1 } });
   } else {
     router.push({ name: 'Calendar', params: { year: date.getFullYear(), month: date.getMonth() + 1 } });
   }
+};
+
+// Previous / next day from the hero card
+const stepDay = (delta) => {
+  const d = store.selectedDate;
+  showDate(new Date(d.getFullYear(), d.getMonth(), d.getDate() + delta));
+};
+
+// Jump the calendar to an upcoming festival, select it and show its details
+const goToFestival = (o) => {
+  showDate(occurrenceDate(o));
   store.openFestival([o]);
 };
 
@@ -141,18 +173,18 @@ const labels = computed(() =>
     ? {
         day: 'ദിവസം', week: 'ആഴ്ച',
         malMonth: 'മലയാള മാസം', era: 'കൊല്ലവർഷം', nakshatram: 'നക്ഷത്രം', now: 'ഇപ്പോൾ',
-        festivals: 'ആഘോഷങ്ങൾ', upcoming: 'വരാനിരിക്കുന്നവ',
+        festivals: 'ആഘോഷങ്ങൾ', toCalendar: 'കലണ്ടർ കാണുക', prevDay: 'മുൻ ദിവസം', nextDay: 'അടുത്ത ദിവസം', upcoming: 'വരാനിരിക്കുന്നവ',
         periodsNote: 'IST · തിരുവനന്തപുരം',
-        nakUntil: `${nakEnds.value.nextDay ? 'നാളെ ' : ''}${nakEnds.value.time} IST വരെ, തുടർന്ന് ${nakshatraName(nak.value.next, 'mal')}`,
+        nakUntil: nakTimeline('mal'),
         dayOf: `${mal.value.day} / ${mal.value.monthLength} ദിവസം`,
         next: `${monthName(mal.value.nextMonth, 'mal')} ആരംഭം: ${nextMonthStart.value}`,
       }
     : {
         day: 'Day', week: 'Week',
         malMonth: 'Malayalam month', era: 'Kollavarsham', nakshatram: 'Nakshatram', now: 'Now',
-        festivals: 'Festivals', upcoming: 'Upcoming',
+        festivals: 'Festivals', toCalendar: 'View calendar', prevDay: 'Previous day', nextDay: 'Next day', upcoming: 'Upcoming',
         periodsNote: 'IST · Thiruvananthapuram',
-        nakUntil: `Until ${nakEnds.value.time} IST${nakEnds.value.nextDay ? ' (next day)' : ''}, then ${nakshatraName(nak.value.next, 'en')}`,
+        nakUntil: nakTimeline('en'),
         dayOf: `Day ${mal.value.day} of ${mal.value.monthLength}`,
         next: `${monthName(mal.value.nextMonth, 'en')} begins ${nextMonthStart.value}`,
       }
@@ -219,6 +251,19 @@ const labels = computed(() =>
           <div class="periods-note">{{ labels.periodsNote }}</div>
         </div>
       </Transition>
+      <div class="day-nav">
+        <button class="day-step" :aria-label="labels.prevDay" :title="labels.prevDay" @click="stepDay(-1)">
+          <i class="bi bi-chevron-left" aria-hidden="true"></i>
+        </button>
+        <!-- Phones/tablets: the calendar sits below this card -->
+        <button class="to-calendar" @click="scrollToCalendar">
+          {{ labels.toCalendar }}
+          <i class="bi bi-arrow-down" aria-hidden="true"></i>
+        </button>
+        <button class="day-step" :aria-label="labels.nextDay" :title="labels.nextDay" @click="stepDay(1)">
+          <i class="bi bi-chevron-right" aria-hidden="true"></i>
+        </button>
+      </div>
     </article>
 
     <!-- One card: nakshatram, Malayalam month, then day-of-year and week side by side -->
@@ -467,6 +512,65 @@ const labels = computed(() =>
   margin-top: 0.4rem;
   font-size: 0.68rem;
   opacity: 0.6;
+}
+
+.day-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.day-step {
+  @include reset-button;
+  @include focus-ring;
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  transition: background 0.2s, transform 0.2s $ease-out;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+.to-calendar {
+  @include reset-button;
+  @include focus-ring;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1.2rem;
+  border-radius: radius('pill');
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background 0.2s;
+
+  .bi {
+    color: token(accent);
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  // Desktop: the calendar is already beside this card
+  @include up('lg') {
+    display: none;
+  }
 }
 
 .mal-date-era {

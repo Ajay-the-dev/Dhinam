@@ -212,6 +212,10 @@ const NAK_SPAN = 360 / 27;
 
 export const nakshatraName = (index, lang) => (lang === 'mal' ? NAKSHATRAS_ML : NAKSHATRAS_EN)[index];
 
+/** All stars of a day from nakshatraOn(), e.g. "Pooram – Uthram": the sunrise one, then those that follow it. */
+export const nakshatraNames = (nak, lang, sep = ' – ') =>
+  [nak.index, ...nak.later.map((s) => s.index)].map((i) => nakshatraName(i, lang)).join(sep);
+
 // When the Moon's sidereal longitude next reaches `target` degrees after `fromMs` (Newton steps)
 function moonReaches(target, fromMs) {
   let t = fromMs;
@@ -230,7 +234,10 @@ const nakCache = new Map();
 
 /**
  * Nakshatram for a local calendar date, Kerala style: the one prevailing at sunrise.
- * @returns {{ index, next, endsAt: Date, sunrise: Date }} index / next are 0-based (0 = Ashwathi).
+ * `later` lists the stars that take over before midnight IST (Pooram, then Uthram from 21:19),
+ * plus any that come and go before the next sunrise, so would never be a day's sunrise star.
+ * @returns {{ index, next, endsAt: Date, sunrise: Date, later: { index, endsAt: Date }[] }}
+ *   index / next are 0-based (0 = Ashwathi); next follows the sunrise star.
  */
 export function nakshatraOn(date) {
   const n = toDayNum(date);
@@ -238,10 +245,20 @@ export function nakshatraOn(date) {
   if (cached) return cached;
 
   const { sunrise } = sunTimes(n);
+  const midnight = (n + 1) * DAY_MS - IST_MIN * 60000;
+  const nextSunrise = sunTimes(n + 1).sunrise;
   const index = Math.floor(moonSidereal(sunrise) / NAK_SPAN);
   const endsAt = moonReaches(((index + 1) % 27) * NAK_SPAN, sunrise);
 
-  const result = { index, next: (index + 1) % 27, endsAt: new Date(endsAt), sunrise: new Date(sunrise) };
+  const later = [];
+  for (let start = endsAt, star = (index + 1) % 27; start < nextSunrise; star = (star + 1) % 27) {
+    const end = moonReaches(((star + 1) % 27) * NAK_SPAN, start + 60000);
+    if (start >= midnight && end >= nextSunrise) break;
+    later.push({ index: star, endsAt: new Date(end) });
+    start = end;
+  }
+
+  const result = { index, next: (index + 1) % 27, endsAt: new Date(endsAt), sunrise: new Date(sunrise), later };
   nakCache.set(n, result);
   return result;
 }

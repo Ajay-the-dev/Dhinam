@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCalendarStore } from '@/stores/calenderStore.js';
-import { monthName as malMonthName, toMalayalamDate, addMalMonths, nakshatraName } from '@/lib/malayalam.js';
+import { monthName as malMonthName, toMalayalamDate, addMalMonths, nakshatraNames } from '@/lib/malayalam.js';
 import MonthPicker from '@/components/MonthPicker.vue';
 import { festivalName } from '@/lib/festivals.js';
 import { useIsDesktop } from '@/composables/useIsDesktop.js';
@@ -144,7 +144,7 @@ const sub = (item) => {
 
 const dayLabel = (item) =>
   `${item.date.toLocaleDateString(locale.value, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}, ` +
-  `${malMonthName(item.mal.month, store.lang)} ${item.mal.day}, ${nakshatraName(item.nak.index, store.lang)}`;
+  `${malMonthName(item.mal.month, store.lang)} ${item.mal.day}, ${nakshatraNames(item.nak, store.lang)}`;
 
 // Language names are always shown in their own script
 const languages = [
@@ -160,7 +160,7 @@ const systemLabels = computed(() =>
 </script>
 
 <template>
-  <div class="calendar-wrap">
+  <div id="calendar" class="calendar-wrap">
     <section class="calendar">
       <header class="cal-header">
         <div class="title-block">
@@ -258,7 +258,9 @@ const systemLabels = computed(() =>
                 <span class="fest-name">{{ festivalName(item.festivals[0].def, store.lang) }}</span>
                 <span v-if="item.festivals.length > 1" class="fest-more">+{{ item.festivals.length - 1 }}</span>
               </button>
-              <span v-else class="nak" aria-hidden="true">{{ nakshatraName(item.nak.index, store.lang) }}</span>
+              <span v-else class="nak" :title="nakshatraNames(item.nak, store.lang)" aria-hidden="true">
+                {{ nakshatraNames(item.nak, store.lang) }}
+              </span>
             </div>
           </div>
         </Transition>
@@ -295,6 +297,7 @@ $tab-tucked: 0.4rem;     // how far inactive tabs sit down behind the card
 .calendar-wrap {
   position: relative;
   isolation: isolate;
+  scroll-margin-top: 3rem; // keep the language tabs above the card in view
 
   // On phones/tablets the details cards sit above; leave room for the tabs
   @include down('lg') {
